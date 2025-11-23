@@ -24,7 +24,7 @@ export default function Home() {
         const data = await pokemonApi.getAllPokemon()
         setPokemonList(data.data)
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not load Pokémon. Retry?")
+        setError(err instanceof Error ? err.message : "Could not load Pokemon. Retry?")
       } finally {
         setLoading(false)
       }

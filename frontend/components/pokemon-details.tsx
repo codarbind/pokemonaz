@@ -14,7 +14,7 @@ export function PokemonDetails({ pokemon, isFavorite, onToggleFavorite }: Pokemo
   if (!pokemon) {
     return (
       <div className="hidden md:flex w-[65%] flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500">
-        <p>Select a Pokémon to view details</p>
+        <p>Select a Pokemon to view details</p>
       </div>
     )
   }
