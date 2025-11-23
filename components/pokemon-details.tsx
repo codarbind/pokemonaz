@@ -1,27 +1,38 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Star } from "lucide-react"
+import { Star, ChevronLeft } from "lucide-react"
 import type { PokemonDetailResponseDto } from "@/lib/api-client"
 
 interface PokemonDetailsProps {
   pokemon: PokemonDetailResponseDto | null
   isFavorite: boolean
   onToggleFavorite: () => void
+  onBack?: () => void
 }
 
-export function PokemonDetails({ pokemon, isFavorite, onToggleFavorite }: PokemonDetailsProps) {
+export function PokemonDetails({ pokemon, isFavorite, onToggleFavorite, onBack }: PokemonDetailsProps) {
   if (!pokemon) {
     return (
-      <div className="hidden md:flex w-[65%] flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500">
+      <div className="hidden md:flex w-full flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-500">
         <p>Select a Pokémon to view details</p>
       </div>
     )
   }
 
   return (
-    <div className="hidden md:flex w-[65%] overflow-y-auto bg-slate-50 dark:bg-slate-950">
+    <div className="w-full overflow-y-auto bg-slate-50 dark:bg-slate-950">
       <div className="w-full p-8 space-y-6">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="md:hidden flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back to List
+          </button>
+        )}
+
         {/* Sprite & Name */}
         <div className="flex flex-col items-center gap-4">
           <img

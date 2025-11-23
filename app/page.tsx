@@ -84,21 +84,26 @@ export default function Home() {
       />
 
       <div className="flex h-[calc(100vh-80px)]">
-        <PokemonList
-          pokemon={filteredPokemon}
-          selectedPokemon={selectedPokemon}
-          favorites={favorites}
-          loading={loading}
-          error={error}
-          onSelectPokemon={handleSelectPokemon}
-          onToggleFavorite={handleToggleFavorite}
-        />
+        <div className={`${selectedPokemon ? "hidden md:flex md:w-[35%]" : "w-full md:w-[35%]"}`}>
+          <PokemonList
+            pokemon={filteredPokemon}
+            selectedPokemon={selectedPokemon}
+            favorites={favorites}
+            loading={loading}
+            error={error}
+            onSelectPokemon={handleSelectPokemon}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        </div>
 
-        <PokemonDetails
-          pokemon={selectedPokemon}
-          isFavorite={selectedPokemon ? favorites.includes(selectedPokemon.id) : false}
-          onToggleFavorite={() => selectedPokemon && handleToggleFavorite(selectedPokemon.id)}
-        />
+        <div className={`${selectedPokemon ? "w-full md:w-[65%]" : "hidden md:w-[65%]"}`}>
+          <PokemonDetails
+            pokemon={selectedPokemon}
+            isFavorite={selectedPokemon ? favorites.includes(selectedPokemon.id) : false}
+            onToggleFavorite={() => selectedPokemon && handleToggleFavorite(selectedPokemon.id)}
+            onBack={() => setSelectedPokemon(null)}
+          />
+        </div>
       </div>
     </div>
   )
