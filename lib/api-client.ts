@@ -148,7 +148,7 @@ export const pokemonApi = {
     const response = await fetch(`${API_BASE_URL}/pokemon/favorites`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pokemonId } as AddFavoriteDto),
+      body: JSON.stringify({ pokemonId: Number(pokemonId) } as AddFavoriteDto),
     })
     if (!response.ok) {
       const error: ErrorResponseDto = await response.json()

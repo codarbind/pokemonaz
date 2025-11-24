@@ -1255,7 +1255,7 @@ const pokemonApi = {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                pokemonId
+                pokemonId: Number(pokemonId)
             })
         });
         if (!response.ok) {
