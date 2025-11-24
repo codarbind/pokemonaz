@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { PokemonGrid } from "@/components/pokemon-grid"
+import { PokemonDetailModal } from "@/components/pokemon-detail-modal"
 import { Header } from "@/components/header"
-import { PokemonList } from "@/components/pokemon-list"
-import { PokemonDetails } from "@/components/pokemon-details"
 import { pokemonApi, type PokemonDetailResponseDto, type PokemonResponseDto } from "@/lib/api-client"
+
+const ITEMS_PER_PAGE = 20
 
 export default function Home() {
   const [pokemonList, setPokemonList] = useState<PokemonResponseDto[]>([])
@@ -14,26 +16,28 @@ export default function Home() {
   const [favorites, setFavorites] = useState<number[]>([])
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [loadingPokemonId, setLoadingPokemonId] = useState<number | null>(null)
 
-  // Load initial Pokemon list from backend
-  useEffect(() => {
-    const loadPokemon = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const data = await pokemonApi.getAllPokemon()
-        setPokemonList(data.data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not load Pokémon. Retry?")
-      } finally {
-        setLoading(false)
-      }
+  // pagination
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(150)
+
+  // Load Pokemon for a specific page
+  const loadPokemon = useCallback(async (page: number) => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await pokemonApi.getAllPokemon(page, ITEMS_PER_PAGE)
+      setPokemonList(data.data)
+      setTotalCount(data.total)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load Pokémon. Retry?")
+    } finally {
+      setLoading(false)
     }
-
-    loadPokemon()
   }, [])
 
-  // Load favorite IDs from backend
+  // Load favorites
   useEffect(() => {
     const loadFavorites = async () => {
       try {
@@ -43,9 +47,34 @@ export default function Home() {
         console.error("Failed to load favorites:", err)
       }
     }
-
     loadFavorites()
   }, [])
+
+  // Handle search
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (!searchTerm) {
+        // If searchTerm is empty, reload current page normally
+        loadPokemon(currentPage)
+        return
+      }
+
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await pokemonApi.searchPokemon(searchTerm)
+        setPokemonList(response.data)
+        setTotalCount(response.data.length) // assume API returns all matching results
+        setCurrentPage(1)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Search failed")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSearchResults()
+  }, [searchTerm, currentPage, loadPokemon])
 
   const handleToggleFavorite = async (id: number) => {
     try {
@@ -61,21 +90,46 @@ export default function Home() {
     }
   }
 
-  const handleSelectPokemon = async (pokemon: PokemonResponseDto) => {
+  const handleSelectPokemon = useCallback(async (pokemon: PokemonResponseDto) => {
     try {
+      setLoadingPokemonId(pokemon.id)
       const response = await pokemonApi.getPokemonById(pokemon.id)
       setSelectedPokemon(response.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load Pokemon details")
+    } finally {
+      setLoadingPokemonId(null)
     }
-  }
+  }, [])
 
-  const filteredPokemon = pokemonList
-    .filter((p) => !showFavoritesOnly || favorites.includes(p.id))
-    .filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const handleNavigatePokemon = useCallback(
+    (direction: "next" | "prev") => {
+      if (!selectedPokemon) return
+      const currentIndex = pokemonList.findIndex((p) => p.id === selectedPokemon.id)
+      if (currentIndex === -1) return
+
+      const nextIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1
+      if (nextIndex >= 0 && nextIndex < pokemonList.length) {
+        handleSelectPokemon(pokemonList[nextIndex])
+      }
+    },
+    [selectedPokemon, pokemonList, handleSelectPokemon],
+  )
+
+  const filteredPokemon = useMemo(() => {
+    let filtered = pokemonList
+
+    if (showFavoritesOnly) {
+      filtered = filtered.filter((p) => favorites.includes(p.id))
+    }
+
+    return filtered
+  }, [pokemonList, showFavoritesOnly, favorites])
+
+  const totalPages = useMemo(() => Math.ceil(totalCount / ITEMS_PER_PAGE), [totalCount])
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <Header
         showFavoritesOnly={showFavoritesOnly}
         onToggleFavorites={setShowFavoritesOnly}
@@ -83,28 +137,32 @@ export default function Home() {
         onSearchChange={setSearchTerm}
       />
 
-      <div className="flex h-[calc(100vh-80px)]">
-        <div className={`${selectedPokemon ? "hidden md:flex md:w-[35%]" : "w-full md:w-[35%]"}`}>
-          <PokemonList
-            pokemon={filteredPokemon}
-            selectedPokemon={selectedPokemon}
-            favorites={favorites}
-            loading={loading}
-            error={error}
-            onSelectPokemon={handleSelectPokemon}
-            onToggleFavorite={handleToggleFavorite}
-          />
-        </div>
+      <PokemonGrid
+        pokemon={filteredPokemon}
+        favorites={favorites}
+        loading={loading}
+        error={error}
+        onSelectPokemon={handleSelectPokemon}
+        onToggleFavorite={handleToggleFavorite}
+        currentPage={currentPage}
+        totalPages={searchTerm || showFavoritesOnly ? 1 : totalPages}
+        onPageChange={setCurrentPage}
+        loadingPokemonId={loadingPokemonId}
+      />
 
-        <div className={`${selectedPokemon ? "w-full md:w-[65%]" : "hidden md:w-[65%]"}`}>
-          <PokemonDetails
-            pokemon={selectedPokemon}
-            isFavorite={selectedPokemon ? favorites.includes(selectedPokemon.id) : false}
-            onToggleFavorite={() => selectedPokemon && handleToggleFavorite(selectedPokemon.id)}
-            onBack={() => setSelectedPokemon(null)}
-          />
-        </div>
-      </div>
-    </div>
+      <PokemonDetailModal
+        pokemon={selectedPokemon}
+        isFavorite={selectedPokemon ? favorites.includes(selectedPokemon.id) : false}
+        onToggleFavorite={() => selectedPokemon && handleToggleFavorite(selectedPokemon.id)}
+        onClose={() => setSelectedPokemon(null)}
+        onNavigate={handleNavigatePokemon}
+        canNavigateNext={
+          selectedPokemon ? pokemonList.findIndex((p) => p.id === selectedPokemon.id) < pokemonList.length - 1 : false
+        }
+        canNavigatePrev={
+          selectedPokemon ? pokemonList.findIndex((p) => p.id === selectedPokemon.id) > 0 : false
+        }
+      />
+    </main>
   )
 }
