@@ -6,7 +6,6 @@ import { PokemonDetailModal } from "@/components/pokemon-detail-modal"
 import { Header } from "@/components/header"
 import { pokemonApi, type PokemonDetailResponseDto, type PokemonResponseDto } from "@/lib/api-client"
 
-
 const ITEMS_PER_PAGE = 20
 
 export default function Home() {
@@ -19,16 +18,15 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("")
   const [loadingPokemonId, setLoadingPokemonId] = useState<number | null>(null)
 
-  // state for pagination
+  // pagination
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCount, setTotalCount] = useState(150)
 
-  // Function to load Pokemon data for a specific page
+  // Load Pokemon for a specific page
   const loadPokemon = useCallback(async (page: number) => {
     try {
       setLoading(true)
       setError(null)
-      // API call with the current page and items per page
       const data = await pokemonApi.getAllPokemon(page, ITEMS_PER_PAGE)
       setPokemonList(data.data)
       setTotalCount(data.total)
@@ -39,15 +37,7 @@ export default function Home() {
     }
   }, [])
 
-  // load Pokemon on initial mount and when currentPage changes
-  useEffect(() => {
-    // Only load if not searching or filtering by favorites
-    if (!searchTerm && !showFavoritesOnly) {
-      loadPokemon(currentPage)
-    }
-  }, [currentPage, loadPokemon, searchTerm, showFavoritesOnly])
-
-  // Effect to load favorites
+  // Load favorites
   useEffect(() => {
     const loadFavorites = async () => {
       try {
@@ -57,9 +47,34 @@ export default function Home() {
         console.error("Failed to load favorites:", err)
       }
     }
-
     loadFavorites()
   }, [])
+
+  // Handle search
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (!searchTerm) {
+        // If searchTerm is empty, reload current page normally
+        loadPokemon(currentPage)
+        return
+      }
+
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await pokemonApi.searchPokemon(searchTerm)
+        setPokemonList(response.data)
+        setTotalCount(response.data.length) // assume API returns all matching results
+        setCurrentPage(1)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Search failed")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSearchResults()
+  }, [searchTerm, currentPage, loadPokemon])
 
   const handleToggleFavorite = async (id: number) => {
     try {
@@ -83,7 +98,7 @@ export default function Home() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load Pokemon details")
     } finally {
-      setLoadingPokemonId(null)        // stop loader when done
+      setLoadingPokemonId(null)
     }
   }, [])
 
@@ -101,25 +116,17 @@ export default function Home() {
     [selectedPokemon, pokemonList, handleSelectPokemon],
   )
 
-  // Filtered list only applies to the currently loaded page
-  // if client-side filtering is active
   const filteredPokemon = useMemo(() => {
-    let filtered = pokemonList;
+    let filtered = pokemonList
 
     if (showFavoritesOnly) {
-      filtered = filtered.filter((p) => favorites.includes(p.id));
+      filtered = filtered.filter((p) => favorites.includes(p.id))
     }
 
-    if (searchTerm) {
-      filtered = filtered.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    }
+    return filtered
+  }, [pokemonList, showFavoritesOnly, favorites])
 
-    return filtered;
-  }, [pokemonList, showFavoritesOnly, favorites, searchTerm]);
-
-  // Calculate total pages for pagination component
   const totalPages = useMemo(() => Math.ceil(totalCount / ITEMS_PER_PAGE), [totalCount])
-
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
@@ -152,7 +159,9 @@ export default function Home() {
         canNavigateNext={
           selectedPokemon ? pokemonList.findIndex((p) => p.id === selectedPokemon.id) < pokemonList.length - 1 : false
         }
-        canNavigatePrev={selectedPokemon ? pokemonList.findIndex((p) => p.id === selectedPokemon.id) > 0 : false}
+        canNavigatePrev={
+          selectedPokemon ? pokemonList.findIndex((p) => p.id === selectedPokemon.id) > 0 : false
+        }
       />
     </main>
   )

@@ -1134,7 +1134,7 @@ function Header({ showFavoritesOnly, onToggleFavorites, searchTerm, onSearchChan
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
-                            placeholder: "Search Pokémon...",
+                            placeholder: "Search Pokemon...",
                             value: searchTerm,
                             onChange: (e)=>onSearchChange(e.target.value),
                             className: "pl-9"
@@ -1314,15 +1314,14 @@ function Home() {
     const [showFavoritesOnly, setShowFavoritesOnly] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [searchTerm, setSearchTerm] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [loadingPokemonId, setLoadingPokemonId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
-    // state for pagination
+    // pagination
     const [currentPage, setCurrentPage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(1);
     const [totalCount, setTotalCount] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(150);
-    // Function to load Pokemon data for a specific page
+    // Load Pokemon for a specific page
     const loadPokemon = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (page)=>{
         try {
             setLoading(true);
             setError(null);
-            // API call with the current page and items per page
             const data = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["pokemonApi"].getAllPokemon(page, ITEMS_PER_PAGE);
             setPokemonList(data.data);
             setTotalCount(data.total);
@@ -1332,19 +1331,7 @@ function Home() {
             setLoading(false);
         }
     }, []);
-    // load Pokemon on initial mount and when currentPage changes
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        // Only load if not searching or filtering by favorites
-        if (!searchTerm && !showFavoritesOnly) {
-            loadPokemon(currentPage);
-        }
-    }, [
-        currentPage,
-        loadPokemon,
-        searchTerm,
-        showFavoritesOnly
-    ]);
-    // Effect to load favorites
+    // Load favorites
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         const loadFavorites = async ()=>{
             try {
@@ -1356,6 +1343,33 @@ function Home() {
         };
         loadFavorites();
     }, []);
+    // Handle search
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const fetchSearchResults = async ()=>{
+            if (!searchTerm) {
+                // If searchTerm is empty, reload current page normally
+                loadPokemon(currentPage);
+                return;
+            }
+            try {
+                setLoading(true);
+                setError(null);
+                const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["pokemonApi"].searchPokemon(searchTerm);
+                setPokemonList(response.data);
+                setTotalCount(response.data.length); // assume API returns all matching results
+                setCurrentPage(1);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Search failed");
+            } finally{
+                setLoading(false);
+            }
+        };
+        fetchSearchResults();
+    }, [
+        searchTerm,
+        currentPage,
+        loadPokemon
+    ]);
     const handleToggleFavorite = async (id)=>{
         try {
             if (favorites.includes(id)) {
@@ -1380,7 +1394,7 @@ function Home() {
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load Pokemon details");
         } finally{
-            setLoadingPokemonId(null); // stop loader when done
+            setLoadingPokemonId(null);
         }
     }, []);
     const handleNavigatePokemon = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((direction)=>{
@@ -1396,24 +1410,17 @@ function Home() {
         pokemonList,
         handleSelectPokemon
     ]);
-    // Filtered list only applies to the currently loaded page
-    // if client-side filtering is active
     const filteredPokemon = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
         let filtered = pokemonList;
         if (showFavoritesOnly) {
             filtered = filtered.filter((p)=>favorites.includes(p.id));
         }
-        if (searchTerm) {
-            filtered = filtered.filter((p)=>p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-        }
         return filtered;
     }, [
         pokemonList,
         showFavoritesOnly,
-        favorites,
-        searchTerm
+        favorites
     ]);
-    // Calculate total pages for pagination component
     const totalPages = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>Math.ceil(totalCount / ITEMS_PER_PAGE), [
         totalCount
     ]);
@@ -1427,7 +1434,7 @@ function Home() {
                 onSearchChange: setSearchTerm
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 126,
+                lineNumber: 133,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$pokemon$2d$grid$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PokemonGrid"], {
@@ -1443,7 +1450,7 @@ function Home() {
                 loadingPokemonId: loadingPokemonId
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 133,
+                lineNumber: 140,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$pokemon$2d$detail$2d$modal$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PokemonDetailModal"], {
@@ -1456,13 +1463,13 @@ function Home() {
                 canNavigatePrev: selectedPokemon ? pokemonList.findIndex((p)=>p.id === selectedPokemon.id) > 0 : false
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 146,
+                lineNumber: 153,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 125,
+        lineNumber: 132,
         columnNumber: 5
     }, this);
 }

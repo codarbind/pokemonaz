@@ -41,7 +41,7 @@ export function Header({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
           <Input
-            placeholder="Search Pokémon..."
+            placeholder="Search Pokemon..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9"
