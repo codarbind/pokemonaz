@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Favorite } from 'pokemon/entities/favorites.entity';
+import { PokemonEvolutionStep } from 'pokemon/interfaces/pokemon.interface';
 
 export class PokemonResponseDto {
   @ApiProperty({ example: 1, description: 'Pokemon ID' })
@@ -23,40 +24,61 @@ export class PokemonListResponseDto {
   total: number;
 }
 
-export class PokemonDetailResponseDto {
-  @ApiProperty({ example: 1, description: 'Pokemon ID' })
-  id: number;
+export class PokemonStatDto {
+@ApiProperty({ example: 'hp', description: 'Stat name' })
+name: string;
 
-  @ApiProperty({ example: 'bulbasaur', description: 'Pokemon name' })
-  name: string;
-
-  @ApiProperty({ 
-    example: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-    description: 'Pokemon sprite URL' 
-  })
-  sprite: string;
-
-  @ApiProperty({ 
-    example: ['grass', 'poison'], 
-    description: 'Pokemon types',
-    type: [String]
-  })
-  types: string[];
-
-  @ApiProperty({ 
-    example: ['overgrow', 'chlorophyll'], 
-    description: 'Pokemon abilities',
-    type: [String]
-  })
-  abilities: string[];
-
-  @ApiProperty({ 
-    example: ['bulbasaur', 'ivysaur', 'venusaur'], 
-    description: 'Evolution chain',
-    type: [String]
-  })
-  evolutionChain: string[];
+@ApiProperty({ example: 45, description: 'Base stat value' })
+value: number;
 }
+
+export class PokemonDetailResponseDto {
+@ApiProperty({ example: 1, description: 'Pokemon ID' })
+id: number;
+
+@ApiProperty({ example: 'bulbasaur', description: 'Pokemon name' })
+name: string;
+
+@ApiProperty({
+example:
+'[https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png](https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png)',
+description: 'Pokemon sprite URL',
+})
+sprite: string;
+
+@ApiProperty({
+example: ['grass', 'poison'],
+description: 'Pokemon types',
+type: [String],
+})
+types: string[];
+
+@ApiProperty({
+example: ['overgrow', 'chlorophyll'],
+description: 'Pokemon abilities',
+type: [String],
+})
+abilities: string[];
+
+@ApiProperty({
+example: [
+{ stat: 'hp', base_stat: 45 },
+{ stat: 'attack', base_stat: 49 },
+{ stat: 'defense', base_stat: 49 },
+],
+description: 'Pokemon base stats',
+type: [PokemonStatDto],
+})
+stats: PokemonStatDto[];
+
+@ApiProperty({
+example: ['bulbasaur', 'ivysaur', 'venusaur'],
+description: 'Evolution chain',
+type: [String],
+})
+evolutionChain: PokemonEvolutionStep[];
+}
+
 
 export class PokemonDetailWrapperDto {
   @ApiProperty({ type: PokemonDetailResponseDto })

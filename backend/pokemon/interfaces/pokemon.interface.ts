@@ -4,13 +4,29 @@ export interface Pokemon {
   sprite: string;
 }
 
+export interface PokemonStat {
+  name: string;
+  value: number;
+}
+
+export interface PokemonEvolutionStep {
+  name: string;
+  sprite: string;
+  types: string[];
+  method: string;
+  details: string;
+  trigger: string
+  requirements: string | null
+}
+
 export interface PokemonDetail {
   id: number;
   name: string;
   sprite: string;
   types: string[];
   abilities: string[];
-  evolutionChain: string[];
+  evolutionChain: PokemonEvolutionStep[];
+  stats: PokemonStat[];
 }
 
 export interface PokemonListResponse {
@@ -43,6 +59,7 @@ export interface ChainLink {
 }
 
 export interface PokeApiPokemon {
+  stats: PokemonStat[];
   id: number;
   name: string;
   sprites: {

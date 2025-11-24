@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
 
   // CORS
-  app.enableCors();
+  app.enableCors({ origin: '*',});
 
   // Swagger configuration
   const config = new DocumentBuilder()
