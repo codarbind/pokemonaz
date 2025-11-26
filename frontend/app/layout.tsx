@@ -8,8 +8,15 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PokeDeck - Manage Your Pokemon",
-  description: "Browse and manage your favorite Pokemon with PokeManager",
+  title: "PokeDeck - Explore Pokémon Evolution",
+  description:
+    "Discover Pokémon with detailed stats, evolution chains, and interactive timeline exploration. Bookmark your favorites in PokeDeck.",
+  keywords: ["Pokémon", "evolution", "database", "stats", "trading card game"],
+  openGraph: {
+    title: "PokeDeck - Pokémon Explorer",
+    description: "Browse and explore Pokémon with evolution chains and detailed statistics",
+    type: "website",
+  },
   icons: {
     icon: [
       {

@@ -19,11 +19,6 @@ export function Header({
   onSearchChange,
 }: HeaderProps) {
   return (
-<<<<<<< HEAD
-    <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-20 flex items-center px-6 justify-between">
-      <div className="text-2xl font-bold text-red-600">
-        Poke<span className="text-blue-600">Deck</span>
-=======
     <header className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 h-20 flex items-center px-6 justify-between sticky top-0 z-40 backdrop-blur-sm bg-white/80 dark:bg-slate-900/80">
       
       {/* Logo with colorful letters */}
@@ -39,7 +34,6 @@ export function Header({
             </span>
           );
         })}
->>>>>>> fad34f2dc6eba312ef45cc87e8e01f336d81887b
       </div>
 
       {/* Search input */}

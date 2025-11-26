@@ -13,7 +13,7 @@ interface PokemonGridProps {
   currentPage: number,
   totalPages: number,
   onPageChange: (page: number) => void,
-  loadingPokemonId: number | null
+  loadingPokemonId: number
 }
 
 export function PokemonGrid({
